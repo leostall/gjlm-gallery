@@ -48,9 +48,7 @@ class ServicoPersistenciaLocal {
     required String colecao,
     required Iterable<Obra> obras,
   }) async {
-    final conteudo = jsonEncode(
-      obras.map((obra) => obra.paraMapa()).toList(),
-    );
+    final conteudo = jsonEncode(obras.map((obra) => obra.paraMapa()).toList());
     await _preferencias.setString(_chave(usuarioId, colecao), conteudo);
   }
 

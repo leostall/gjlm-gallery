@@ -4,11 +4,7 @@ import '../modelos/obra.dart';
 import 'imagem_obra.dart';
 
 class CartaoObra extends StatelessWidget {
-  const CartaoObra({
-    super.key,
-    required this.obra,
-    required this.aoTocar,
-  });
+  const CartaoObra({super.key, required this.obra, required this.aoTocar});
 
   final Obra obra;
   final VoidCallback aoTocar;
@@ -25,10 +21,7 @@ class CartaoObra extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                flex: 7,
-                child: ImagemObra(obra: obra),
-              ),
+              Expanded(flex: 7, child: ImagemObra(obra: obra)),
               Expanded(
                 flex: 3,
                 child: Padding(

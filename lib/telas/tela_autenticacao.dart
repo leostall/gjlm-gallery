@@ -5,10 +5,7 @@ import '../configuracoes/tema_aplicativo.dart';
 import '../provedores/provedor_autenticacao.dart';
 
 class TelaAutenticacao extends StatefulWidget {
-  const TelaAutenticacao({
-    super.key,
-    required this.firebaseAtivo,
-  });
+  const TelaAutenticacao({super.key, required this.firebaseAtivo});
 
   final bool firebaseAtivo;
 
@@ -228,8 +225,9 @@ class _TelaAutenticacaoState extends State<TelaAutenticacao> {
                         ),
                         const SizedBox(height: 8),
                         TextButton(
-                          onPressed:
-                              autenticacao.carregando ? null : _alternarModo,
+                          onPressed: autenticacao.carregando
+                              ? null
+                              : _alternarModo,
                           child: Text(
                             _modoCadastro
                                 ? 'Já tenho uma conta'

@@ -18,9 +18,7 @@ class TelaColecao extends StatelessWidget {
   void _abrirDetalhes(BuildContext context, Obra obra) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => TelaDetalhesObra(obraInicial: obra),
-      ),
+      MaterialPageRoute(builder: (_) => TelaDetalhesObra(obraInicial: obra)),
     );
   }
 
@@ -40,9 +38,7 @@ class TelaColecao extends StatelessWidget {
 
     if (obras.isEmpty) {
       return MensagemEstado(
-        icone: ehFavoritos
-            ? Icons.favorite_border
-            : Icons.visibility_outlined,
+        icone: ehFavoritos ? Icons.favorite_border : Icons.visibility_outlined,
         titulo: ehFavoritos ? 'Nenhum favorito ainda' : 'Nenhuma obra vista',
         mensagem: ehFavoritos
             ? 'Abra uma obra no catálogo e toque no coração para salvá-la.'

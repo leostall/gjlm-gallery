@@ -8,10 +8,7 @@ import '../modelos/usuario_sessao.dart';
 import 'servico_persistencia_local.dart';
 
 class ServicoAutenticacao {
-  ServicoAutenticacao(
-    this._persistenciaLocal, {
-    required this.firebaseAtivo,
-  });
+  ServicoAutenticacao(this._persistenciaLocal, {required this.firebaseAtivo});
 
   final bool firebaseAtivo;
   final ServicoPersistenciaLocal _persistenciaLocal;
@@ -38,10 +35,11 @@ class ServicoAutenticacao {
 
     if (firebaseAtivo) {
       try {
-        final credencial = await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailNormalizado,
-          password: senha,
-        );
+        final credencial = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+              email: emailNormalizado,
+              password: senha,
+            );
         return _converterUsuarioFirebase(credencial.user!);
       } on FirebaseAuthException catch (erro) {
         throw ExcecaoAutenticacao(_mensagemFirebase(erro.code));
@@ -50,7 +48,9 @@ class ServicoAutenticacao {
 
     final conta = _lerContaLocal();
     if (conta == null || conta['email'] != emailNormalizado) {
-      throw const ExcecaoAutenticacao('Conta não encontrada. Faça seu cadastro.');
+      throw const ExcecaoAutenticacao(
+        'Conta não encontrada. Faça seu cadastro.',
+      );
     }
 
     final hashInformado = _gerarHash(senha, conta['sal'] as String);
@@ -74,9 +74,9 @@ class ServicoAutenticacao {
       try {
         final credencial = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
-          email: emailNormalizado,
-          password: senha,
-        );
+              email: emailNormalizado,
+              password: senha,
+            );
         await credencial.user!.updateDisplayName(nomeNormalizado);
         await credencial.user!.reload();
         return _converterUsuarioFirebase(

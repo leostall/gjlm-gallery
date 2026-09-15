@@ -40,10 +40,7 @@ class MensagemEstado extends StatelessWidget {
             Text(mensagem, textAlign: TextAlign.center),
             if (rotuloAcao != null && aoAcionar != null) ...[
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: aoAcionar,
-                child: Text(rotuloAcao!),
-              ),
+              ElevatedButton(onPressed: aoAcionar, child: Text(rotuloAcao!)),
             ],
           ],
         ),

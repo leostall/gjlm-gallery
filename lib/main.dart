@@ -7,7 +7,7 @@ import 'configuracoes/inicializador_firebase.dart';
 import 'provedores/provedor_autenticacao.dart';
 import 'provedores/provedor_catalogo.dart';
 import 'provedores/provedor_colecao.dart';
-import 'servicos/servico_art_institute.dart';
+import 'servicos/servico_museu_cleveland.dart';
 import 'servicos/servico_autenticacao.dart';
 import 'servicos/servico_persistencia_local.dart';
 import 'servicos/servico_sincronizacao_nuvem.dart';
@@ -33,19 +33,14 @@ Future<void> main() async {
           create: (_) => ProvedorAutenticacao(autenticacao)..inicializar(),
         ),
         ChangeNotifierProvider(
-          create: (_) => ProvedorCatalogo(ServicoArtInstitute()),
+          create: (_) => ProvedorCatalogo(ServicoMuseuCleveland()),
         ),
         ChangeNotifierProxyProvider<ProvedorAutenticacao, ProvedorColecao>(
-          create: (_) => ProvedorColecao(
-            persistenciaLocal,
-            sincronizacaoNuvem,
-          ),
+          create: (_) => ProvedorColecao(persistenciaLocal, sincronizacaoNuvem),
           update: (_, autenticacao, colecao) {
-            final provedor = colecao ??
-                ProvedorColecao(
-                  persistenciaLocal,
-                  sincronizacaoNuvem,
-                );
+            final provedor =
+                colecao ??
+                ProvedorColecao(persistenciaLocal, sincronizacaoNuvem);
             provedor.atualizarUsuario(autenticacao.usuario?.id);
             return provedor;
           },

@@ -33,9 +33,7 @@ abstract final class TemaAplicativo {
         color: Colors.white,
         elevation: 2,
         shadowColor: CoresGaleria.vinho.withValues(alpha: 0.12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -50,10 +48,7 @@ abstract final class TemaAplicativo {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: CoresGaleria.vinho,
-            width: 2,
-          ),
+          borderSide: const BorderSide(color: CoresGaleria.vinho, width: 2),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(

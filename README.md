@@ -1,7 +1,7 @@
 # GJLM Gallery
 
 Aplicativo Flutter de catálogo interativo de obras de arte. O acervo é obtido
-pela API pública do Art Institute of Chicago. Favoritos e obras vistas são
+pela API pública do Cleveland Museum of Art. Favoritos e obras vistas são
 salvos no aparelho e, quando o Firebase está configurado, sincronizados no
 Cloud Firestore para cada usuário autenticado.
 
@@ -56,8 +56,8 @@ iOS exigem macOS com Xcode.
 
 ## API utilizada
 
-- Documentação: https://api.artic.edu/docs/
-- Listagem: `GET /api/v1/artworks`
-- Detalhe: `GET /api/v1/artworks/{id}`
-- Busca: `GET /api/v1/artworks/search?q=...`
-- Imagens: serviço IIIF do Art Institute of Chicago
+- Documentação: https://openaccess-api.clevelandart.org/
+- Listagem: `GET /api/artworks/?skip=...&limit=...`
+- Detalhe: `GET /api/artworks/{id}`
+- Busca: `GET /api/artworks/?q=...`
+- Imagens: CDN Open Access do Cleveland Museum of Art

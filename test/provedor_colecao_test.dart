@@ -15,18 +15,12 @@ void main() {
     const nuvem = ServicoSincronizacaoNuvem(firebaseAtivo: false);
     const obra = Obra(id: 7, titulo: 'Obra persistida');
 
-    final primeiro = ProvedorColecao(
-      persistencia,
-      nuvem,
-    );
+    final primeiro = ProvedorColecao(persistencia, nuvem);
     primeiro.atualizarUsuario('usuario-1');
     await Future<void>.delayed(const Duration(milliseconds: 20));
     await primeiro.alternarFavorito(obra);
 
-    final segundo = ProvedorColecao(
-      persistencia,
-      nuvem,
-    );
+    final segundo = ProvedorColecao(persistencia, nuvem);
     segundo.atualizarUsuario('usuario-1');
     await Future<void>.delayed(const Duration(milliseconds: 20));
 

@@ -42,9 +42,9 @@ class _TelaCatalogoState extends State<TelaCatalogo> {
     if (obra == null) {
       final mensagem = provedor.erro;
       if (mensagem != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(mensagem)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mensagem)));
       }
       return;
     }
@@ -55,9 +55,7 @@ class _TelaCatalogoState extends State<TelaCatalogo> {
   void _abrirDetalhes(Obra obra) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => TelaDetalhesObra(obraInicial: obra),
-      ),
+      MaterialPageRoute(builder: (_) => TelaDetalhesObra(obraInicial: obra)),
     );
   }
 
@@ -142,8 +140,7 @@ class _TelaCatalogoState extends State<TelaCatalogo> {
           child: SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: catalogo.carregandoMais ||
-                      !catalogo.temProximaPagina
+              onPressed: catalogo.carregandoMais || !catalogo.temProximaPagina
                   ? null
                   : catalogo.carregarMais,
               icon: catalogo.carregandoMais
@@ -159,8 +156,8 @@ class _TelaCatalogoState extends State<TelaCatalogo> {
                 catalogo.carregandoMais
                     ? 'Carregando...'
                     : catalogo.temProximaPagina
-                        ? 'Carregar mais'
-                        : 'Todo o acervo foi carregado',
+                    ? 'Carregar mais'
+                    : 'Todo o acervo foi carregado',
               ),
             ),
           ),

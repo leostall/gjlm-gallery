@@ -12,7 +12,9 @@ class ImagemObra extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final url = obra.urlImagem;
-    final descricao = obra.textoAlternativo ?? 'Imagem da obra ${obra.titulo}';
+    final descricao =
+        obra.textoAlternativo ??
+        'Imagem da obra ${obra.titulo}, de ${obra.artistaParaExibicao}';
 
     return Semantics(
       image: true,
@@ -26,7 +28,6 @@ class ImagemObra extends StatelessWidget {
                 width: double.infinity,
                 webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
                 errorBuilder: (_, _, _) => const _PlaceholderImagem(),
-                // restante...
               ),
       ),
     );

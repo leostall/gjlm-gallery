@@ -18,9 +18,9 @@ class GradeObras extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final largura = MediaQuery.sizeOf(context).width;
-    final escalaTexto = MediaQuery.textScalerOf(context)
-        .scale(1)
-        .clamp(1.0, 1.6);
+    final escalaTexto = MediaQuery.textScalerOf(
+      context,
+    ).scale(1).clamp(1.0, 1.6);
     final colunas = largura >= 900 ? 4 : (largura >= 600 ? 3 : 2);
 
     return GridView.builder(
@@ -34,10 +34,7 @@ class GradeObras extends StatelessWidget {
       itemCount: obras.length,
       itemBuilder: (context, indice) {
         final obra = obras[indice];
-        return CartaoObra(
-          obra: obra,
-          aoTocar: () => aoSelecionar(obra),
-        );
+        return CartaoObra(obra: obra, aoTocar: () => aoSelecionar(obra));
       },
     );
   }

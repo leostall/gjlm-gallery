@@ -8,10 +8,7 @@ import 'telas/tela_principal.dart';
 import 'widgets/indicador_carregamento.dart';
 
 class AplicativoGaleria extends StatelessWidget {
-  const AplicativoGaleria({
-    super.key,
-    required this.firebaseAtivo,
-  });
+  const AplicativoGaleria({super.key, required this.firebaseAtivo});
 
   final bool firebaseAtivo;
 
@@ -27,10 +24,7 @@ class AplicativoGaleria extends StatelessWidget {
 }
 
 class PortalAutenticacao extends StatelessWidget {
-  const PortalAutenticacao({
-    super.key,
-    required this.firebaseAtivo,
-  });
+  const PortalAutenticacao({super.key, required this.firebaseAtivo});
 
   final bool firebaseAtivo;
 
@@ -40,9 +34,7 @@ class PortalAutenticacao extends StatelessWidget {
 
     if (!autenticacao.inicializado) {
       return const Scaffold(
-        body: IndicadorCarregamento(
-          mensagem: 'Preparando sua galeria...',
-        ),
+        body: IndicadorCarregamento(mensagem: 'Preparando sua galeria...'),
       );
     }
 

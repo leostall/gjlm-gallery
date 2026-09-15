@@ -10,10 +10,7 @@ import '../widgets/indicador_carregamento.dart';
 import '../widgets/mensagem_estado.dart';
 
 class TelaDetalhesObra extends StatefulWidget {
-  const TelaDetalhesObra({
-    super.key,
-    required this.obraInicial,
-  });
+  const TelaDetalhesObra({super.key, required this.obraInicial});
 
   final Obra obraInicial;
 
@@ -31,9 +28,9 @@ class _TelaDetalhesObraState extends State<TelaDetalhesObra> {
   }
 
   void _carregar() {
-    _futuroObra = context
-        .read<ProvedorCatalogo>()
-        .carregarDetalhes(widget.obraInicial.id);
+    _futuroObra = context.read<ProvedorCatalogo>().carregarDetalhes(
+      widget.obraInicial.id,
+    );
   }
 
   void _tentarNovamente() {
@@ -107,8 +104,8 @@ class _ConteudoDetalhes extends StatelessWidget {
                 Text(
                   obra.artistaParaExibicao,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: CoresGaleria.dourado,
-                      ),
+                    color: CoresGaleria.dourado,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Wrap(
@@ -196,10 +193,10 @@ class _LinhaInformacao extends StatelessWidget {
           Text(
             rotulo.toUpperCase(),
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: CoresGaleria.vinho,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.8,
-                ),
+              color: CoresGaleria.vinho,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.8,
+            ),
           ),
           const SizedBox(height: 3),
           Text(valor!),

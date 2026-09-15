@@ -5,11 +5,7 @@ import 'package:gjlm_gallery/widgets/cartao_obra.dart';
 
 void main() {
   testWidgets('o card apresenta título e artista', (testador) async {
-    const obra = Obra(
-      id: 1,
-      titulo: 'Nenúfares',
-      nomeArtista: 'Claude Monet',
-    );
+    const obra = Obra(id: 1, titulo: 'Nenúfares', nomeArtista: 'Claude Monet');
 
     await testador.pumpWidget(
       MaterialApp(

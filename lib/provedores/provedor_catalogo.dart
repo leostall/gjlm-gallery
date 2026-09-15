@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 
 import '../modelos/obra.dart';
-import '../servicos/servico_art_institute.dart';
+import '../servicos/servico_museu_cleveland.dart';
 
 class ProvedorCatalogo extends ChangeNotifier {
   ProvedorCatalogo(this._servico);
 
-  final ServicoArtInstitute _servico;
+  final ServicoMuseuCleveland _servico;
 
   final List<Obra> _obras = [];
   int _paginaAtual = 0;
@@ -56,9 +56,7 @@ class ProvedorCatalogo extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final resultado = await _servico.listarObras(
-        pagina: _paginaAtual + 1,
-      );
+      final resultado = await _servico.listarObras(pagina: _paginaAtual + 1);
       final idsExistentes = _obras.map((obra) => obra.id).toSet();
       _obras.addAll(
         resultado.obras.where((obra) => !idsExistentes.contains(obra.id)),

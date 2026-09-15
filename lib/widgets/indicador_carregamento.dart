@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class IndicadorCarregamento extends StatelessWidget {
-  const IndicadorCarregamento({
-    super.key,
-    this.mensagem = 'Carregando...',
-  });
+  const IndicadorCarregamento({super.key, this.mensagem = 'Carregando...'});
 
   final String mensagem;
 

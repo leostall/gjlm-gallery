@@ -10,7 +10,7 @@ class Obra {
     this.dimensoes,
     this.origem,
     this.descricao,
-    this.identificadorImagem,
+    this.urlImagem,
     this.textoAlternativo,
   });
 
@@ -24,37 +24,44 @@ class Obra {
   final String? dimensoes;
   final String? origem;
   final String? descricao;
-  final String? identificadorImagem;
+  final String? urlImagem;
   final String? textoAlternativo;
-
-  String? get urlImagem {
-    final imagem = identificadorImagem;
-    if (imagem == null || imagem.isEmpty) return null;
-    return 'https://www.artic.edu/iiif/2/$imagem/full/843,/0/default.jpg';
-  }
 
   String get artistaParaExibicao =>
       _textoValido(nomeArtista) ?? 'Artista não informado';
 
   factory Obra.deJson(Map<String, dynamic> json) {
-    final miniatura = json['thumbnail'];
-    final dadosMiniatura = miniatura is Map
-        ? Map<String, dynamic>.from(miniatura)
+    final imagens = json['images'];
+    final dadosImagens = imagens is Map
+        ? Map<String, dynamic>.from(imagens)
         : <String, dynamic>{};
+    final imagemWeb = dadosImagens['web'];
+    final dadosImagemWeb = imagemWeb is Map
+        ? Map<String, dynamic>.from(imagemWeb)
+        : <String, dynamic>{};
+    final criadores = json['creators'] is List
+        ? List<dynamic>.from(json['creators'] as List)
+        : <dynamic>[];
+    final primeiroCriador = criadores.isNotEmpty && criadores.first is Map
+        ? Map<String, dynamic>.from(criadores.first as Map)
+        : <String, dynamic>{};
+    final dadosCriador = _textoValido(primeiroCriador['description']);
+    final culturas = json['culture'] is List
+        ? List<dynamic>.from(json['culture'] as List)
+        : <dynamic>[];
 
     return Obra(
       id: (json['id'] as num).toInt(),
       titulo: _textoValido(json['title']) ?? 'Obra sem título',
-      nomeArtista: _textoValido(json['artist_title']),
-      dadosArtista: _textoValido(json['artist_display']),
-      data: _textoValido(json['date_display']),
-      tipo: _textoValido(json['artwork_type_title']),
-      tecnica: _textoValido(json['medium_display']),
-      dimensoes: _textoValido(json['dimensions']),
-      origem: _textoValido(json['place_of_origin']),
+      nomeArtista: _nomeResumidoCriador(dadosCriador),
+      dadosArtista: dadosCriador,
+      data: _textoValido(json['creation_date']),
+      tipo: _textoValido(json['type']),
+      tecnica: _textoValido(json['technique']),
+      dimensoes: _textoValido(json['measurements']),
+      origem: _juntarTextos(culturas),
       descricao: _textoValido(json['description']),
-      identificadorImagem: _textoValido(json['image_id']),
-      textoAlternativo: _textoValido(dadosMiniatura['alt_text']),
+      urlImagem: _textoValido(dadosImagemWeb['url']),
     );
   }
 
@@ -70,7 +77,7 @@ class Obra {
       dimensoes: _textoValido(mapa['dimensoes']),
       origem: _textoValido(mapa['origem']),
       descricao: _textoValido(mapa['descricao']),
-      identificadorImagem: _textoValido(mapa['identificadorImagem']),
+      urlImagem: _textoValido(mapa['urlImagem']),
       textoAlternativo: _textoValido(mapa['textoAlternativo']),
     );
   }
@@ -87,7 +94,7 @@ class Obra {
       'dimensoes': dimensoes,
       'origem': origem,
       'descricao': descricao,
-      'identificadorImagem': identificadorImagem,
+      'urlImagem': urlImagem,
       'textoAlternativo': textoAlternativo,
     };
   }
@@ -96,5 +103,18 @@ class Obra {
     if (valor is! String) return null;
     final texto = valor.trim();
     return texto.isEmpty ? null : texto;
+  }
+
+  static String? _nomeResumidoCriador(String? descricao) {
+    if (descricao == null) return null;
+    final inicioDetalhes = descricao.indexOf(' (');
+    return inicioDetalhes > 0
+        ? descricao.substring(0, inicioDetalhes).trim()
+        : descricao;
+  }
+
+  static String? _juntarTextos(List<dynamic> valores) {
+    final textos = valores.map(_textoValido).whereType<String>().toList();
+    return textos.isEmpty ? null : textos.join(', ');
   }
 }

@@ -7,10 +7,7 @@ import '../servicos/servico_persistencia_local.dart';
 import '../servicos/servico_sincronizacao_nuvem.dart';
 
 class ProvedorColecao extends ChangeNotifier {
-  ProvedorColecao(
-    this._persistenciaLocal,
-    this._sincronizacaoNuvem,
-  );
+  ProvedorColecao(this._persistenciaLocal, this._sincronizacaoNuvem);
 
   final ServicoPersistenciaLocal _persistenciaLocal;
   final ServicoSincronizacaoNuvem _sincronizacaoNuvem;
