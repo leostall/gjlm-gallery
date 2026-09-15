@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "215099942721",
+    "project_id": "gjlm-gallery",
+    "storage_bucket": "gjlm-gallery.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:215099942721:android:c9de74a42110d0606863c0",
+        "android_client_info": {
+          "package_name": "com.example.gjlm_gallery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPAoAMZbM49BlUcLmVUG33n6uSRLN25hs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
