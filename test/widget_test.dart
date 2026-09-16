@@ -227,7 +227,7 @@ void main() {
   );
 
   testWidgets(
-    'limpar restaura catálogo e Carregar mais recupera o estilo compacto',
+    'limpar restaura catálogo e Carregar Mais recupera o estilo compacto',
     (tester) async {
       await tester.pumpWidget(app(const Scaffold(body: TelaCatalogo())));
       await estabilizar(tester);
@@ -240,10 +240,10 @@ void main() {
       await tester.tap(find.byTooltip('Limpar busca'));
       await estabilizar(tester);
       expect(find.text('Outra obra'), findsOneWidget);
-      final botao = find.widgetWithText(OutlinedButton, 'Carregar mais');
+      final botao = find.widgetWithText(ElevatedButton, 'Carregar Mais');
       expect(botao, findsOneWidget);
       expect(
-        find.widgetWithText(ElevatedButton, 'Carregar mais'),
+        find.widgetWithText(OutlinedButton, 'Carregar Mais'),
         findsNothing,
       );
       await tester.tap(botao);

@@ -209,7 +209,7 @@ class _TelaCatalogoState extends State<TelaCatalogo> {
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Center(
-                child: OutlinedButton.icon(
+                child: ElevatedButton.icon(
                   onPressed: catalogo.carregandoMais || catalogo.buscando
                       ? null
                       : catalogo.carregarMais,
@@ -218,21 +218,16 @@ class _TelaCatalogoState extends State<TelaCatalogo> {
                           dimension: 15,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Color(0xFF70263A),
+                            color: Colors.white,
                             semanticsLabel: 'Carregando mais obras',
                           ),
                         )
                       : const Icon(Icons.add, size: 16),
                   label: Text(
-                    catalogo.carregandoMais ? 'Carregando...' : 'Carregar mais',
+                    catalogo.carregandoMais ? 'Carregando...' : 'Carregar Mais',
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF70263A),
-                    side: const BorderSide(
-                      color: Color(0xFFB49763),
-                      width: 0.9,
-                    ),
+                  style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
                       vertical: 10,

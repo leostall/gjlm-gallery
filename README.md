@@ -10,7 +10,9 @@ Cloud Firestore para cada usuário autenticado.
 - cadastro e login com e-mail e senha;
 - catálogo paginado em `GridView`;
 - imagem substituta quando uma obra não possui imagem;
-- busca automática ao digitar; no formato `Título — Artista`, Buscar abre uma correspondência exata e única; buscas livres, parciais ou ambíguas permanecem na grade;
+- busca acionada pelo botão `Buscar` ou pelo envio do campo; termos livres usam
+  a busca geral da API e o formato `Título — Artista` aplica filtros específicos;
+  nos dois casos, a primeira obra retornada abre diretamente nos detalhes;
 - detalhes completos obtidos em uma segunda requisição;
 - favoritos e obras vistas gerenciados com Provider;
 - persistência local com `shared_preferences`;
