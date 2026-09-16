@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../configuracoes/tema_aplicativo.dart';
 import '../provedores/provedor_autenticacao.dart';
+import '../widgets/campo_rotulado.dart';
 
 class TelaAutenticacao extends StatefulWidget {
   const TelaAutenticacao({super.key, required this.firebaseAtivo});
@@ -36,6 +37,7 @@ class _TelaAutenticacaoState extends State<TelaAutenticacao> {
     if (!(_chaveFormulario.currentState?.validate() ?? false)) return;
 
     final provedor = context.read<ProvedorAutenticacao>();
+    if (provedor.carregando) return;
     if (_modoCadastro) {
       await provedor.cadastrar(
         nome: _controladorNome.text,
@@ -106,94 +108,103 @@ class _TelaAutenticacaoState extends State<TelaAutenticacao> {
                         ],
                         const SizedBox(height: 24),
                         if (_modoCadastro) ...[
-                          TextFormField(
-                            controller: _controladorNome,
-                            textInputAction: TextInputAction.next,
-                            autofillHints: const [AutofillHints.name],
-                            decoration: const InputDecoration(
-                              labelText: 'Nome',
-                              prefixIcon: Icon(Icons.person_outline),
+                          CampoRotulado(
+                            rotulo: 'Nome',
+                            child: TextFormField(
+                              controller: _controladorNome,
+                              textInputAction: TextInputAction.next,
+                              autofillHints: const [AutofillHints.name],
+                              decoration: const InputDecoration(
+                                prefixIcon: Icon(Icons.person_outline),
+                              ),
+                              validator: (valor) {
+                                if (valor == null || valor.trim().length < 2) {
+                                  return 'Informe seu nome.';
+                                }
+                                return null;
+                              },
                             ),
-                            validator: (valor) {
-                              if (valor == null || valor.trim().length < 2) {
-                                return 'Informe seu nome.';
-                              }
-                              return null;
-                            },
                           ),
                           const SizedBox(height: 14),
                         ],
-                        TextFormField(
-                          controller: _controladorEmail,
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                          autofillHints: const [AutofillHints.email],
-                          decoration: const InputDecoration(
-                            labelText: 'E-mail',
-                            prefixIcon: Icon(Icons.email_outlined),
-                          ),
-                          validator: (valor) {
-                            final email = valor?.trim() ?? '';
-                            if (!email.contains('@') || !email.contains('.')) {
-                              return 'Digite um e-mail válido.';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 14),
-                        TextFormField(
-                          controller: _controladorSenha,
-                          obscureText: _ocultarSenha,
-                          textInputAction: _modoCadastro
-                              ? TextInputAction.next
-                              : TextInputAction.done,
-                          autofillHints: _modoCadastro
-                              ? const [AutofillHints.newPassword]
-                              : const [AutofillHints.password],
-                          onFieldSubmitted: (_) {
-                            if (!_modoCadastro) _enviar();
-                          },
-                          decoration: InputDecoration(
-                            labelText: 'Senha',
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              tooltip: _ocultarSenha
-                                  ? 'Mostrar senha'
-                                  : 'Ocultar senha',
-                              onPressed: () => setState(
-                                () => _ocultarSenha = !_ocultarSenha,
-                              ),
-                              icon: Icon(
-                                _ocultarSenha
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                              ),
-                            ),
-                          ),
-                          validator: (valor) {
-                            if (valor == null || valor.length < 6) {
-                              return 'Use pelo menos 6 caracteres.';
-                            }
-                            return null;
-                          },
-                        ),
-                        if (_modoCadastro) ...[
-                          const SizedBox(height: 14),
-                          TextFormField(
-                            controller: _controladorConfirmacao,
-                            obscureText: _ocultarSenha,
-                            textInputAction: TextInputAction.done,
-                            onFieldSubmitted: (_) => _enviar(),
+                        CampoRotulado(
+                          rotulo: 'E-mail',
+                          child: TextFormField(
+                            controller: _controladorEmail,
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                            autofillHints: const [AutofillHints.email],
                             decoration: const InputDecoration(
-                              labelText: 'Confirmar senha',
-                              prefixIcon: Icon(Icons.lock_reset_outlined),
+                              prefixIcon: Icon(Icons.email_outlined),
                             ),
                             validator: (valor) {
-                              if (valor != _controladorSenha.text) {
-                                return 'As senhas não são iguais.';
+                              final email = valor?.trim() ?? '';
+                              if (!email.contains('@') ||
+                                  !email.contains('.')) {
+                                return 'Digite um e-mail válido.';
                               }
                               return null;
                             },
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        CampoRotulado(
+                          rotulo: 'Senha',
+                          child: TextFormField(
+                            controller: _controladorSenha,
+                            obscureText: _ocultarSenha,
+                            textInputAction: _modoCadastro
+                                ? TextInputAction.next
+                                : TextInputAction.done,
+                            autofillHints: _modoCadastro
+                                ? const [AutofillHints.newPassword]
+                                : const [AutofillHints.password],
+                            onFieldSubmitted: (_) {
+                              if (!_modoCadastro) _enviar();
+                            },
+                            decoration: InputDecoration(
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                tooltip: _ocultarSenha
+                                    ? 'Mostrar senha'
+                                    : 'Ocultar senha',
+                                onPressed: () => setState(
+                                  () => _ocultarSenha = !_ocultarSenha,
+                                ),
+                                icon: Icon(
+                                  _ocultarSenha
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                ),
+                              ),
+                            ),
+                            validator: (valor) {
+                              if (valor == null || valor.length < 6) {
+                                return 'Use pelo menos 6 caracteres.';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        if (_modoCadastro) ...[
+                          const SizedBox(height: 14),
+                          CampoRotulado(
+                            rotulo: 'Confirmar senha',
+                            child: TextFormField(
+                              controller: _controladorConfirmacao,
+                              obscureText: _ocultarSenha,
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (_) => _enviar(),
+                              decoration: const InputDecoration(
+                                prefixIcon: Icon(Icons.lock_reset_outlined),
+                              ),
+                              validator: (valor) {
+                                if (valor != _controladorSenha.text) {
+                                  return 'As senhas não são iguais.';
+                                }
+                                return null;
+                              },
+                            ),
                           ),
                         ],
                         if (autenticacao.erro != null) ...[
@@ -217,6 +228,7 @@ class _TelaAutenticacaoState extends State<TelaAutenticacao> {
                               ? const SizedBox.square(
                                   dimension: 24,
                                   child: CircularProgressIndicator(
+                                    semanticsLabel: 'Autenticando',
                                     strokeWidth: 3,
                                     color: Colors.white,
                                   ),
@@ -265,7 +277,7 @@ class _AvisoModoLocal extends StatelessWidget {
           SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Firebase ainda não configurado. O app está usando o modo local.',
+              'Modo local: sua conta e suas obras são salvas somente neste aparelho.',
             ),
           ),
         ],

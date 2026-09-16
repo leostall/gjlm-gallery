@@ -16,7 +16,6 @@ class TelaColecao extends StatelessWidget {
   final TipoColecao tipo;
 
   static const _vinho = Color(0xFF70263A);
-  static const _dourado = Color(0xFFB49763);
 
   void _abrirDetalhes(BuildContext context, Obra obra) {
     Navigator.push(
@@ -49,82 +48,40 @@ class TelaColecao extends StatelessWidget {
       );
     }
 
-    return Column(
-      children: [
+    return CustomScrollView(
+      slivers: [
         if (colecao.avisoSincronizacao != null)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFEDE3D3),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: _dourado.withValues(alpha: 0.4),
-                  width: 0.8,
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 10,
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.cloud_off_outlined, size: 17, color: _vinho),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      colecao.avisoSincronizacao!,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        color: Color(0xFF302A25),
-                      ),
-                    ),
-                  ),
-                ],
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+              child: Semantics(
+                liveRegion: true,
+                child: Text(colecao.avisoSincronizacao!),
               ),
             ),
           ),
-
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 14, 20, 4),
-          child: Row(
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: const BoxDecoration(
-                  color: _dourado,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 4),
+            child: Semantics(
+              header: true,
+              child: Text(
                 ehFavoritos
-                    ? '${obras.length} FAVORITOS'
-                    : '${obras.length} OBRAS VISTAS',
+                    ? '${obras.length} favoritos'
+                    : '${obras.length} obras vistas',
                 style: const TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  letterSpacing: 1.1,
-                  color: Color(0xFF302A25),
+                  color: _vinho,
                 ),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Container(
-                  height: 0.8,
-                  color: _dourado.withValues(alpha: 0.45),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
-
-        Expanded(
-          child: GradeObras(
-            obras: obras,
-            aoSelecionar: (obra) => _abrirDetalhes(context, obra),
-          ),
+        GradeObras(
+          emSliver: true,
+          obras: obras,
+          aoSelecionar: (obra) => _abrirDetalhes(context, obra),
         ),
       ],
     );

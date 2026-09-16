@@ -16,21 +16,27 @@ class ImagemObra extends StatelessWidget {
         obra.textoAlternativo ??
         'Imagem da obra ${obra.titulo}, de ${obra.artistaParaExibicao}';
 
-    return Semantics(
+    Widget semantica(Widget child, {bool indisponivel = false}) => Semantics(
       image: true,
-      label: descricao,
-      child: ExcludeSemantics(
-        child: url == null
-            ? const _PlaceholderImagem()
-            : Image.network(
-                url,
-                fit: ajuste,
-                width: double.infinity,
-                webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
-                errorBuilder: (_, _, _) => const _PlaceholderImagem(),
-              ),
-      ),
+      excludeSemantics: true,
+      label: indisponivel
+          ? 'Imagem indisponível para ${obra.titulo}, de ${obra.artistaParaExibicao}'
+          : descricao,
+      child: child,
     );
+
+    return url == null
+        ? semantica(const _PlaceholderImagem(), indisponivel: true)
+        : Image.network(
+            url,
+            fit: ajuste,
+            width: double.infinity,
+            excludeFromSemantics: true,
+            webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
+            frameBuilder: (_, child, _, _) => semantica(child),
+            errorBuilder: (_, _, _) =>
+                semantica(const _PlaceholderImagem(), indisponivel: true),
+          );
   }
 }
 
@@ -42,7 +48,7 @@ class _PlaceholderImagem extends StatelessWidget {
     return ColoredBox(
       color: CoresGaleria.cremeEscuro,
       child: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,

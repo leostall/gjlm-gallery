@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'configuracoes/tema_aplicativo.dart';
@@ -18,6 +19,11 @@ class AplicativoGaleria extends StatelessWidget {
       title: 'GJLM Gallery',
       debugShowCheckedModeBanner: false,
       theme: TemaAplicativo.claro,
+      locale: const Locale('pt', 'BR'),
+      supportedLocales: const [Locale('pt', 'BR')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      builder: (context, child) =>
+          Semantics(localeForSubtree: const Locale('pt', 'BR'), child: child!),
       home: PortalAutenticacao(firebaseAtivo: firebaseAtivo),
     );
   }

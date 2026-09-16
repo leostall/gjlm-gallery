@@ -1,72 +1,49 @@
-# Configuração do Firebase
+# Firebase da atividade
 
-O código já possui autenticação por e-mail/senha e sincronização com Firestore.
-Falta vinculá-lo a um projeto Firebase pertencente ao grupo.
+O projeto **gjlm-gallery já está configurado** em `lib/firebase_options.dart`.
+Firebase Auth por e-mail/senha e o Firestore `(default)` foram verificados
+contra o serviço real. O banco está em `southamerica-east1`.
 
-## 1. Criar o projeto
-
-1. Acesse https://console.firebase.google.com/.
-2. Crie um projeto, por exemplo `gjlm-gallery`.
-3. Em **Authentication > Sign-in method**, habilite **E-mail/senha**.
-4. Em **Firestore Database**, crie o banco. Para a entrega, escolha uma região
-   próxima e use regras protegidas, não o modo de teste permanente.
-
-## 2. Instalar as ferramentas
+A versão a apresentar é a web, no Chrome:
 
 ```bash
-npm install -g firebase-tools
-firebase login
-dart pub global activate flutterfire_cli
+flutter run -d chrome
 ```
 
-Se o terminal não reconhecer `flutterfire`, adicione a pasta indicada pelo
-comando anterior ao `PATH` e abra o terminal novamente.
+Favoritos e obras vistas são armazenados localmente e sincronizados em
+`usuarios/{uid}/favoritos` e `usuarios/{uid}/vistos`. Alterações que não chegam
+à nuvem ficam pendentes no aparelho e são reenviadas na próxima entrada ou
+reinicialização. As regras em `firestore.rules` restringem o acesso ao dono.
 
-## 3. Vincular Android e iOS
-
-Na raiz do projeto, execute:
+## Repetir a verificação real
 
 ```bash
-flutterfire configure
+python3 tool/verificar_firebase.py
 ```
 
-Selecione o projeto criado e marque Android e iOS. O comando substituirá
-`lib/firebase_options.dart` pelos dados corretos e fará as configurações
-necessárias nas plataformas.
+O script cria uma conta temporária, autentica, grava e lê as duas coleções,
+repete a leitura em uma nova sessão, verifica o bloqueio de acessos indevidos
+e remove os documentos e a conta. Requer internet; não imprime credenciais.
 
-Identificadores atuais do projeto:
+## Se mudar de projeto
 
-- Android: `com.example.gjlm_gallery`
-- iOS: `com.example.gjlmGallery`
-
-## 4. Publicar as regras do Firestore
-
-O arquivo `firestore.rules` permite que cada usuário acesse apenas suas próprias
-coleções.
+Use `flutterfire configure`, habilite E-mail/senha no Firebase Authentication,
+crie o banco Firestore e publique as regras:
 
 ```bash
-firebase use --add
-firebase deploy --only firestore:rules
+firebase deploy --only firestore:rules --project SEU_PROJETO
 ```
 
-## 5. Validar
+Para uma hospedagem web própria, confira também os domínios autorizados no
+Firebase Authentication. Quando a inicialização do Firebase não é possível,
+o app informa o modo local; **nesse modo os bônus não estão ativos**.
 
-```bash
-flutter clean
-flutter pub get
-flutter run
-```
+## Plataformas Apple nativas
 
-Na tela de autenticação, o aviso de modo local deve desaparecer. Depois:
+O Chrome não depende de assinatura Apple. O aplicativo macOS nativo precisa
+de Keychain Sharing e de assinatura de desenvolvimento configuradas no Xcode
+para autenticação Firebase. O computador usado nesta revisão não possui
+certificado válido; não foi certificada a execução nativa em macOS/iOS.
+Os entitlements de debug e release permitem conexões de rede de saída.
 
-1. crie uma conta;
-2. favorite e marque uma obra como vista;
-3. feche e reabra o aplicativo;
-4. confirme que os dados permaneceram;
-5. entre com a mesma conta em outro aparelho e confirme a sincronização.
-
-## Login com Google depois da entrega principal
-
-O login Google não está ativado nesta versão para não aumentar o risco da
-entrega. Ele pode ser incluído depois com `google_sign_in`, habilitação do
-provedor Google no Firebase e configuração de SHA-1/SHA-256 no Android.
+Referência: [configuração oficial do Firebase para Flutter](https://firebase.google.com/docs/flutter/setup).

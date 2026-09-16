@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../provedores/provedor_autenticacao.dart';
+import '../widgets/barra_titulo.dart';
+import '../widgets/estrutura_pagina.dart';
 import 'tela_catalogo.dart';
 import 'tela_colecao.dart';
 
@@ -24,6 +26,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: _creme,
+        scrollable: true,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4),
           side: const BorderSide(color: _dourado, width: 0.8),
@@ -42,10 +45,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(color: _vinho),
-            ),
+            child: const Text('Cancelar', style: TextStyle(color: _vinho)),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -68,64 +68,22 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return EstruturaPagina(
       backgroundColor: _creme,
 
       // =========================================================
       // CABEÇALHO
       // =========================================================
-
-      appBar: AppBar(
-        backgroundColor: _creme,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        toolbarHeight: 92,
-        titleSpacing: 22,
-
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 3,
-              height: 42,
-              color: _dourado,
-              margin: const EdgeInsets.only(right: 14),
-            ),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'GJLM',
-                  style: TextStyle(
-                    fontFamily: 'Georgia',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 5,
-                    color: _dourado,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'GALLERY',
-                  style: TextStyle(
-                    fontFamily: 'Georgia',
-                    fontSize: 27,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 4,
-                    color: _vinho,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-
-        actions: [
+      appBar: barraTitulo(
+        context,
+        titulo: 'GJLM Gallery',
+        fundo: _creme,
+        cor: _vinho,
+        larguraAcoes: 74,
+        acoes: [
           Container(
-            width: 38,
-            height: 38,
+            width: 56,
+            height: 56,
             margin: const EdgeInsets.only(right: 18),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
@@ -138,17 +96,13 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               tooltip: 'Sair da conta',
               padding: EdgeInsets.zero,
               onPressed: _confirmarSaida,
-              icon: const Icon(
-                Icons.logout_outlined,
-                color: _vinho,
-                size: 18,
-              ),
+              icon: const Icon(Icons.logout_outlined, color: _vinho, size: 18),
             ),
           ),
         ],
 
         // friso decorativo em duas linhas, no estilo de uma placa clássica
-        bottom: PreferredSize(
+        rodape: PreferredSize(
           preferredSize: const Size.fromHeight(6),
           child: Column(
             children: [
@@ -163,115 +117,112 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       // =========================================================
       // CONTEÚDO
       // =========================================================
-
       body: IndexedStack(
         index: _indiceAtual,
         children: const [
           TelaCatalogo(),
-          TelaColecao(
-            tipo: TipoColecao.favoritos,
-          ),
-          TelaColecao(
-            tipo: TipoColecao.vistos,
-          ),
+          TelaColecao(tipo: TipoColecao.favoritos),
+          TelaColecao(tipo: TipoColecao.vistos),
         ],
       ),
 
       // =========================================================
       // MENU INFERIOR
       // =========================================================
+      bottomNavigationBar: MediaQuery.viewInsetsOf(context).bottom > 0
+          ? null
+          : Container(
+              decoration: BoxDecoration(
+                color: _creme,
+                border: Border(
+                  top: BorderSide(
+                    color: _dourado.withValues(alpha: 0.4),
+                    width: 0.8,
+                  ),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: _vinho.withValues(alpha: 0.06),
+                    blurRadius: 12,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: Material(
+                  color: _creme,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _destino(0, 'Catálogo', Icons.grid_view_outlined),
+                        _destino(1, 'Favoritos', Icons.favorite_border_rounded),
+                        _destino(2, 'Vistas', Icons.visibility_outlined),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+    );
+  }
 
-      bottomNavigationBar: Container(
-        height: 68,
-        decoration: BoxDecoration(
-          color: _creme,
-          border: Border(
-            top: BorderSide(
-              color: _dourado.withValues(alpha: 0.4),
-              width: 0.8,
+  Widget _destino(int indice, String rotulo, IconData icone) {
+    final selecionado = indice == _indiceAtual;
+    void selecionar() => setState(() => _indiceAtual = indice);
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minWidth: MediaQuery.sizeOf(context).width / 3,
+      ),
+      child: IntrinsicWidth(
+        child: Semantics(
+          container: true,
+          button: true,
+          selected: selecionado,
+          label: rotulo,
+          value: 'Aba ${indice + 1} de 3',
+          onTap: selecionar,
+          excludeSemantics: true,
+          child: InkWell(
+            onTap: selecionar,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: selecionado ? _vinho : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      icone,
+                      size: 20,
+                      color: selecionado ? _creme : _vinho,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    rotulo,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: selecionado
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: _vinho,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: _vinho.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: NavigationBar(
-          height: 67,
-          backgroundColor: _creme,
-          elevation: 0,
-          selectedIndex: _indiceAtual,
-
-          labelBehavior:
-              NavigationDestinationLabelBehavior.alwaysShow,
-
-          indicatorColor: _vinho,
-          indicatorShape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-
-          labelTextStyle: WidgetStateProperty.resolveWith((states) {
-            final selecionado = states.contains(WidgetState.selected);
-            return TextStyle(
-              fontSize: 11,
-              letterSpacing: 0.5,
-              fontWeight: selecionado ? FontWeight.w700 : FontWeight.w500,
-              color: selecionado ? _vinho : _vinho.withValues(alpha: 0.65),
-            );
-          }),
-
-          onDestinationSelected: (indice) {
-            setState(() {
-              _indiceAtual = indice;
-            });
-          },
-
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(
-                Icons.grid_view_outlined,
-                size: 19,
-                color: _vinho,
-              ),
-              selectedIcon: Icon(
-                Icons.grid_view_rounded,
-                size: 19,
-                color: _creme,
-              ),
-              label: 'Catálogo',
-            ),
-
-            NavigationDestination(
-              icon: Icon(
-                Icons.favorite_border_rounded,
-                size: 19,
-                color: _vinho,
-              ),
-              selectedIcon: Icon(
-                Icons.favorite_rounded,
-                size: 19,
-                color: _creme,
-              ),
-              label: 'Favoritos',
-            ),
-
-            NavigationDestination(
-              icon: Icon(
-                Icons.visibility_outlined,
-                size: 19,
-                color: _vinho,
-              ),
-              selectedIcon: Icon(
-                Icons.visibility_rounded,
-                size: 19,
-                color: _creme,
-              ),
-              label: 'Vistas',
-            ),
-          ],
         ),
       ),
     );

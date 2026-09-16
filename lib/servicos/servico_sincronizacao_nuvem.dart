@@ -13,7 +13,9 @@ class ServicoSincronizacaoNuvem {
   }) async {
     if (!firebaseAtivo) return [];
 
-    final consulta = await _referencia(usuarioId, colecao).get();
+    final consulta = await _referencia(usuarioId, colecao)
+        .get(const GetOptions(source: Source.server))
+        .timeout(const Duration(seconds: 12));
     return consulta.docs
         .map((documento) => Obra.deMapa(documento.data()))
         .toList();
@@ -26,10 +28,10 @@ class ServicoSincronizacaoNuvem {
   }) async {
     if (!firebaseAtivo) return;
 
-    await _referencia(usuarioId, colecao).doc('${obra.id}').set({
-      ...obra.paraMapa(),
-      'atualizadoEm': FieldValue.serverTimestamp(),
-    });
+    await _referencia(usuarioId, colecao)
+        .doc('${obra.id}')
+        .set({...obra.paraMapa(), 'atualizadoEm': FieldValue.serverTimestamp()})
+        .timeout(const Duration(seconds: 12));
   }
 
   Future<void> removerObra({
@@ -38,7 +40,10 @@ class ServicoSincronizacaoNuvem {
     required int obraId,
   }) async {
     if (!firebaseAtivo) return;
-    await _referencia(usuarioId, colecao).doc('$obraId').delete();
+    await _referencia(
+      usuarioId,
+      colecao,
+    ).doc('$obraId').delete().timeout(const Duration(seconds: 12));
   }
 
   CollectionReference<Map<String, dynamic>> _referencia(

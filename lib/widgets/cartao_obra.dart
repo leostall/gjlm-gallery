@@ -1,130 +1,121 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../configuracoes/tema_aplicativo.dart';
 import '../modelos/obra.dart';
+import '../provedores/provedor_colecao.dart';
 import 'imagem_obra.dart';
 
 class CartaoObra extends StatelessWidget {
-  const CartaoObra({
-    super.key,
-    required this.obra,
-    required this.aoTocar,
-  });
+  const CartaoObra({super.key, required this.obra, required this.aoTocar});
 
   final Obra obra;
   final VoidCallback aoTocar;
 
-  static const vinho = Color(0xFF70263A);
-  static const creme = Color(0xFFF7F3EA);
-  static const dourado = Color(0xFFB49763);
-  static const texto = Color(0xFF302A25);
-
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label:
-          'Abrir detalhes de ${obra.titulo}, ${obra.artistaParaExibicao}',
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: aoTocar,
-          borderRadius: BorderRadius.circular(6),
-          child: Container(
-            decoration: BoxDecoration(
-              color: creme,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(
-                color: dourado.withValues(alpha: 0.35),
-                width: 0.7,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  flex: 8,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      ImagemObra(obra: obra),
+    final colecao = context.watch<ProvedorColecao>();
+    final favorito = colecao.ehFavorito(obra.id);
+    void alternar() => colecao.alternarFavorito(obra);
 
-                      Positioned(
-                        top: 10,
-                        right: 10,
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(
-                              alpha: 0.25,
-                            ),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.favorite_border,
-                            size: 17,
-                            color: Colors.white,
-                          ),
-                        ),
+    return Material(
+      color: CoresGaleria.creme,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: const BorderSide(color: CoresGaleria.cremeEscuro),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Semantics(
+              container: true,
+              button: true,
+              excludeSemantics: true,
+              label: '${obra.titulo}, de ${obra.artistaParaExibicao}',
+              hint: 'Abrir detalhes da obra',
+              onTap: aoTocar,
+              child: InkWell(
+                onTap: aoTocar,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(
+                      height: 210,
+                      child: ColoredBox(
+                        color: CoresGaleria.cremeEscuro,
+                        child: ImagemObra(obra: obra, ajuste: BoxFit.contain),
                       ),
-                    ],
-                  ),
-                ),
-
-                Expanded(
-                  flex: 3,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      12,
-                      10,
-                      12,
-                      8,
                     ),
-                    child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          obra.titulo,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontFamily: 'Georgia',
-                            fontSize: 15,
-                            height: 1.15,
-                            fontWeight: FontWeight.w500,
-                            color: texto,
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            obra.titulo,
+                            style: const TextStyle(
+                              fontFamily: 'Georgia',
+                              fontSize: 15,
+                              height: 1.2,
+                              color: CoresGaleria.tinta,
+                            ),
                           ),
-                        ),
-
-                        const SizedBox(height: 5),
-
-                        Text(
-                          obra.artistaParaExibicao,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            letterSpacing: 0.2,
-                            color: vinho,
+                          const SizedBox(height: 6),
+                          Text(
+                            obra.artistaParaExibicao,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              height: 1.3,
+                              color: CoresGaleria.vinho,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Semantics(
+              container: true,
+              button: true,
+              toggled: favorito,
+              label: favorito
+                  ? 'Remover ${obra.titulo} dos favoritos'
+                  : 'Adicionar ${obra.titulo} aos favoritos',
+              onTap: alternar,
+              excludeSemantics: true,
+              child: Tooltip(
+                message: favorito
+                    ? 'Remover dos favoritos'
+                    : 'Adicionar aos favoritos',
+                child: SizedBox.square(
+                  key: ValueKey('favorito-${obra.id}'),
+                  dimension: 56,
+                  child: Material(
+                    color: CoresGaleria.vinho,
+                    borderRadius: BorderRadius.circular(12),
+                    child: InkWell(
+                      onTap: alternar,
+                      borderRadius: BorderRadius.circular(12),
+                      child: Center(
+                        child: Icon(
+                          favorito ? Icons.favorite : Icons.favorite_border,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

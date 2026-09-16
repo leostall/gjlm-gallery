@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/semantics.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,6 +16,8 @@ import 'servicos/servico_sincronizacao_nuvem.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Mantém a árvore semântica ativa durante toda a execução no navegador.
+  if (kIsWeb) SemanticsBinding.instance.ensureSemantics();
 
   final firebaseAtivo = await InicializadorFirebase.inicializar();
   final preferencias = await SharedPreferences.getInstance();

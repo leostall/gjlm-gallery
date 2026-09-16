@@ -21,6 +21,17 @@ abstract final class TemaAplicativo {
 
     return ThemeData(
       useMaterial3: true,
+      materialTapTargetSize: MaterialTapTargetSize.padded,
+      visualDensity: VisualDensity.standard,
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+      ),
       colorScheme: esquema,
       scaffoldBackgroundColor: CoresGaleria.creme,
       appBarTheme: const AppBarTheme(
@@ -36,6 +47,7 @@ abstract final class TemaAplicativo {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
       inputDecorationTheme: InputDecorationTheme(
+        errorMaxLines: 4,
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(

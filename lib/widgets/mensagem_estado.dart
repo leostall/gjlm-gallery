@@ -19,22 +19,20 @@ class MensagemEstado extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icone,
-              size: 56,
-              color: Theme.of(context).colorScheme.primary,
-              semanticLabel: titulo,
-            ),
+            Icon(icone, size: 56, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 16),
-            Text(
-              titulo,
-              style: Theme.of(context).textTheme.titleLarge,
-              textAlign: TextAlign.center,
+            Semantics(
+              header: true,
+              child: Text(
+                titulo,
+                style: Theme.of(context).textTheme.titleLarge,
+                textAlign: TextAlign.center,
+              ),
             ),
             const SizedBox(height: 8),
             Text(mensagem, textAlign: TextAlign.center),

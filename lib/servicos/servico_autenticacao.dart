@@ -18,7 +18,7 @@ class ServicoAutenticacao {
 
   Future<UsuarioSessao?> recuperarSessao() async {
     if (firebaseAtivo) {
-      final usuario = FirebaseAuth.instance.currentUser;
+      final usuario = await FirebaseAuth.instance.authStateChanges().first;
       return usuario == null ? null : _converterUsuarioFirebase(usuario);
     }
 

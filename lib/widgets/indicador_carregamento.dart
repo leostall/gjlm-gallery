@@ -11,12 +11,13 @@ class IndicadorCarregamento extends StatelessWidget {
       child: Semantics(
         liveRegion: true,
         label: mensagem,
-        child: Padding(
+        excludeSemantics: true,
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircularProgressIndicator(),
+              CircularProgressIndicator(semanticsLabel: mensagem),
               const SizedBox(height: 16),
               Text(mensagem, textAlign: TextAlign.center),
             ],

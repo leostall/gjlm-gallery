@@ -22,6 +22,8 @@ class ProvedorAutenticacao extends ChangeNotifier {
   Future<void> inicializar() async {
     try {
       _usuario = await _servico.recuperarSessao();
+    } catch (_) {
+      _erro = 'Não foi possível restaurar a sessão. Entre novamente.';
     } finally {
       _inicializado = true;
       notifyListeners();

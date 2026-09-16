@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../modelos/obra.dart';
+import '../modelos/consulta_obras.dart';
 import '../modelos/resultado_paginado_obras.dart';
 
 class ServicoMuseuCleveland {
@@ -29,19 +30,23 @@ class ServicoMuseuCleveland {
   Future<ResultadoPaginadoObras> listarObras({
     required int pagina,
     int limite = 12,
+    String termo = '',
   }) async {
     final paginaSegura = pagina < 1 ? 1 : pagina;
     final deslocamento = (paginaSegura - 1) * limite;
     final uri = Uri.https(_host, '$_caminhoBase/', {
       'has_image': '1',
       'skip': '$deslocamento',
+      ...ConsultaObras(termo).parametros,
       'limit': '$limite',
       'fields': _campos.join(','),
     });
 
-    final resposta = await _cliente.get(uri);
+    final resposta = await _cliente
+        .get(uri)
+        .timeout(const Duration(seconds: 20));
     final json = _decodificarResposta(resposta);
-    final dados = json['data'] as List<dynamic>? ?? [];
+    final dados = _listaDeMapas(json['data']);
     final informacoes = Map<String, dynamic>.from(
       json['info'] as Map? ?? <String, dynamic>{},
     );
@@ -51,9 +56,7 @@ class ServicoMuseuCleveland {
         : (totalObras + limite - 1) ~/ limite;
 
     return ResultadoPaginadoObras(
-      obras: dados
-          .map((item) => Obra.deJson(Map<String, dynamic>.from(item as Map)))
-          .toList(),
+      obras: dados.map(Obra.deJson).toList(),
       paginaAtual: paginaSegura,
       totalPaginas: totalPaginas,
     );
@@ -61,7 +64,9 @@ class ServicoMuseuCleveland {
 
   Future<Obra> buscarDetalhes(int id) async {
     final uri = Uri.https(_host, '$_caminhoBase/$id');
-    final resposta = await _cliente.get(uri);
+    final resposta = await _cliente
+        .get(uri)
+        .timeout(const Duration(seconds: 20));
     final json = _decodificarResposta(resposta);
     final dados = json['data'];
 
@@ -70,32 +75,6 @@ class ServicoMuseuCleveland {
     }
 
     return Obra.deJson(Map<String, dynamic>.from(dados));
-  }
-
-  Future<Obra> buscarPrimeiraObra(String termo) async {
-    final busca = termo.trim();
-    if (busca.isEmpty) {
-      throw const ExcecaoApi('Digite o nome de uma obra ou artista.');
-    }
-
-    final uri = Uri.https(_host, '$_caminhoBase/', {
-      'q': busca,
-      'has_image': '1',
-      'skip': '0',
-      'limit': '1',
-      'fields': 'id',
-    });
-    final resposta = await _cliente.get(uri);
-    final json = _decodificarResposta(resposta);
-    final dados = json['data'] as List<dynamic>? ?? [];
-
-    if (dados.isEmpty) {
-      throw ExcecaoApi('Nenhuma obra encontrada para “$busca”.');
-    }
-
-    final primeiro = Map<String, dynamic>.from(dados.first as Map);
-    final id = (primeiro['id'] as num).toInt();
-    return buscarDetalhes(id);
   }
 
   Map<String, dynamic> _decodificarResposta(http.Response resposta) {
@@ -108,10 +87,26 @@ class ServicoMuseuCleveland {
 
     try {
       final corpo = utf8.decode(resposta.bodyBytes);
-      return Map<String, dynamic>.from(jsonDecode(corpo) as Map);
+      final decodificado = jsonDecode(corpo);
+      if (decodificado is! Map) {
+        throw const FormatException();
+      }
+      return Map<String, dynamic>.from(decodificado);
     } on FormatException {
       throw const ExcecaoApi('A resposta do acervo veio em formato inválido.');
     }
+  }
+
+  List<Map<String, dynamic>> _listaDeMapas(Object? valor) {
+    if (valor is! List) {
+      throw const ExcecaoApi(
+        'A resposta do acervo não trouxe uma lista de obras.',
+      );
+    }
+    return valor
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
   }
 
   void fechar() => _cliente.close();
