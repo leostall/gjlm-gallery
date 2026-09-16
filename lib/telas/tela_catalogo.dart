@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../modelos/obra.dart';
 import '../provedores/provedor_catalogo.dart';
 import '../widgets/grade_obras.dart';
-import '../widgets/campo_rotulado.dart';
 import '../widgets/indicador_carregamento.dart';
 import '../widgets/mensagem_estado.dart';
 import 'tela_detalhes_obra.dart';
@@ -16,6 +15,10 @@ class TelaCatalogo extends StatefulWidget {
 }
 
 class _TelaCatalogoState extends State<TelaCatalogo> {
+  static const _orientacaoBusca =
+      'Digite o título, o nome do artista ou use o formato Título — Artista. '
+      'A primeira obra encontrada será aberta.';
+
   final _controladorBusca = TextEditingController();
   final _controladorScroll = ScrollController();
 
@@ -34,15 +37,39 @@ class _TelaCatalogoState extends State<TelaCatalogo> {
     super.dispose();
   }
 
-  void _filtrar(String texto) {
-    context.read<ProvedorCatalogo>().filtrar(texto);
+  void _voltarAoInicio() {
     if (_controladorScroll.hasClients) _controladorScroll.jumpTo(0);
+  }
+
+  Future<void> _limparBusca() async {
+    final catalogo = context.read<ProvedorCatalogo>();
+    _controladorBusca.clear();
+    setState(() {});
+    _voltarAoInicio();
+    await catalogo.limparBusca();
+  }
+
+  void _mostrarOrientacaoBusca() {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Como buscar'),
+        content: const Text(_orientacaoBusca),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Entendi'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _buscar() async {
     final catalogo = context.read<ProvedorCatalogo>();
     if (catalogo.buscando) return;
     FocusScope.of(context).unfocus();
+    _voltarAoInicio();
     final obra = await catalogo.buscar(_controladorBusca.text);
     if (mounted && obra != null) {
       _abrirDetalhes(obra);
@@ -59,40 +86,55 @@ class _TelaCatalogoState extends State<TelaCatalogo> {
   @override
   Widget build(BuildContext context) {
     final catalogo = context.watch<ProvedorCatalogo>();
-    final campo = CampoRotulado(
-      rotulo: 'Buscar obra ou artista',
-      child: TextField(
-        controller: _controladorBusca,
-        onChanged: (texto) {
-          _filtrar(texto);
-          setState(() {});
-        },
-        onSubmitted: (_) => _buscar(),
-        textInputAction: TextInputAction.search,
-        decoration: InputDecoration(
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: _controladorBusca.text.trim().isEmpty
-              ? null
-              : IconButton(
-                  tooltip: 'Limpar busca',
-                  onPressed: () {
-                    _controladorBusca.clear();
-                    _filtrar('');
-                    setState(() {});
-                  },
-                  icon: const Icon(Icons.clear),
-                ),
+    final campo = TextField(
+      controller: _controladorBusca,
+      onChanged: (_) => setState(() {}),
+      onSubmitted: (_) => _buscar(),
+      textInputAction: TextInputAction.search,
+      decoration: InputDecoration(
+        labelText: 'Buscar obra ou artista',
+        floatingLabelBehavior: FloatingLabelBehavior.never,
+        prefixIcon: const Icon(Icons.search),
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_controladorBusca.text.trim().isNotEmpty)
+              IconButton(
+                tooltip: 'Limpar busca',
+                onPressed: _limparBusca,
+                icon: const Icon(Icons.clear),
+              ),
+            Semantics(
+              key: const ValueKey('informacoes-busca'),
+              container: true,
+              button: true,
+              label: 'Informações sobre a busca. $_orientacaoBusca',
+              hint: 'Ative para abrir esta orientação.',
+              onTap: _mostrarOrientacaoBusca,
+              excludeSemantics: true,
+              child: IconButton(
+                tooltip: _orientacaoBusca,
+                onPressed: _mostrarOrientacaoBusca,
+                icon: const Icon(Icons.info_outline),
+              ),
+            ),
+          ],
         ),
       ),
     );
-    final buscar = ElevatedButton(
+    final buscar = ElevatedButton.icon(
       onPressed: catalogo.buscando ? null : _buscar,
-      child: catalogo.buscando
+      icon: catalogo.buscando
           ? const SizedBox.square(
-              dimension: 24,
-              child: CircularProgressIndicator(semanticsLabel: 'Buscando obra'),
+              dimension: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                color: Colors.white,
+                semanticsLabel: 'Buscando obra',
+              ),
             )
-          : const Text('Buscar'),
+          : const Icon(Icons.search),
+      label: Text(catalogo.buscando ? 'Buscando...' : 'Buscar'),
     );
     return CustomScrollView(
       controller: _controladorScroll,
@@ -114,24 +156,16 @@ class _TelaCatalogoState extends State<TelaCatalogo> {
                   children: [
                     Expanded(child: campo),
                     const SizedBox(width: 12),
-                    buscar,
+                    SizedBox(height: 56, child: buscar),
                   ],
                 );
               },
             ),
           ),
         ),
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(
-              'Para abrir uma correspondência exata, digite: Título — Artista.',
-            ),
-          ),
-        ),
         if (catalogo.carregandoInicial && catalogo.obras.isNotEmpty)
           const SliverToBoxAdapter(
-            child: IndicadorCarregamento(mensagem: 'Filtrando obras'),
+            child: IndicadorCarregamento(mensagem: 'Atualizando obras'),
           ),
         if (catalogo.erro != null || catalogo.avisoBusca != null)
           SliverToBoxAdapter(
@@ -174,20 +208,39 @@ class _TelaCatalogoState extends State<TelaCatalogo> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(12),
-              child: ElevatedButton.icon(
-                onPressed: catalogo.carregandoMais || catalogo.buscando
-                    ? null
-                    : catalogo.carregarMais,
-                icon: catalogo.carregandoMais
-                    ? const SizedBox.square(
-                        dimension: 24,
-                        child: CircularProgressIndicator(
-                          semanticsLabel: 'Carregando mais obras',
-                        ),
-                      )
-                    : const Icon(Icons.add),
-                label: Text(
-                  catalogo.carregandoMais ? 'Carregando...' : 'Carregar mais',
+              child: Center(
+                child: OutlinedButton.icon(
+                  onPressed: catalogo.carregandoMais || catalogo.buscando
+                      ? null
+                      : catalogo.carregarMais,
+                  icon: catalogo.carregandoMais
+                      ? const SizedBox.square(
+                          dimension: 15,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Color(0xFF70263A),
+                            semanticsLabel: 'Carregando mais obras',
+                          ),
+                        )
+                      : const Icon(Icons.add, size: 16),
+                  label: Text(
+                    catalogo.carregandoMais ? 'Carregando...' : 'Carregar mais',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF70263A),
+                    side: const BorderSide(
+                      color: Color(0xFFB49763),
+                      width: 0.9,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
               ),
             ),

@@ -121,8 +121,9 @@ void main() {
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       theme: TemaAplicativo.claro,
       builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context)
-            .copyWith(textScaler: TextScaler.linear(escala)),
+        data: MediaQuery.of(
+          context,
+        ).copyWith(textScaler: TextScaler.linear(escala)),
         child: child!,
       ),
       home: tela,
@@ -187,74 +188,107 @@ void main() {
     expect(find.text('Nenhum favorito ainda'), findsOneWidget);
   });
 
-  testWidgets('digitar filtra e Buscar abre diretamente o detalhe (RF08)', (
-    tester,
-  ) async {
-    await tester.pumpWidget(app(const Scaffold(body: TelaCatalogo())));
-    await estabilizar(tester);
-    expect(find.text('Outra obra'), findsOneWidget);
-    await tester.enterText(find.byType(TextField), 'monet');
-    await tester.pump();
-    expect(find.text('Outra obra'), findsNothing);
-    await tester.pump(const Duration(milliseconds: 350));
-    await estabilizar(tester);
-    expect(consultas.last.queryParameters['q'], 'monet');
-    expect(find.byType(TelaDetalhesObra), findsNothing);
-    await tester.tap(find.text('Buscar'));
-    await estabilizar(tester);
-    expect(find.byType(TelaDetalhesObra), findsNothing);
-    expect(catalogo.avisoBusca, contains('várias obras'));
-    await tester.enterText(find.byType(TextField), 'Nenúfares');
-    await tester.tap(find.text('Buscar'));
-    await estabilizar(tester);
-    expect(find.byType(TelaDetalhesObra), findsNothing);
-    await tester.enterText(find.byType(TextField), 'Nenúfares — Claude Monet');
-    await tester.tap(find.text('Buscar'));
-    await estabilizar(tester);
-    expect(catalogo.erro, isNull, reason: consultas.toString());
-    expect(catalogo.buscando, isFalse);
-    expect(find.byType(TelaDetalhesObra), findsOneWidget);
-    expect(find.text('Nenúfares'), findsOneWidget);
-    expect(find.byTooltip('Voltar'), findsOneWidget);
-    expect(consultas.last.path, endsWith('/1'));
-    expect(
-      consultas[consultas.length - 2].queryParameters['title'],
-      'Nenúfares',
-    );
-    expect(
-      consultas[consultas.length - 2].queryParameters['artists'],
-      'Claude Monet',
-    );
-    await tester.tap(find.byTooltip('Voltar'));
-    await estabilizar(tester);
-    await tester.enterText(find.byType(TextField), 'obra inexistente');
-    await tester.tap(find.text('Buscar'));
-    await estabilizar(tester);
-    expect(find.text('Nenhuma obra encontrada'), findsOneWidget);
-    expect(find.text('Acervo indisponível'), findsNothing);
-    expect(find.byType(TelaDetalhesObra), findsNothing);
-  });
+  testWidgets(
+    'digitar não requisita e Buscar abre o primeiro resultado (RF08)',
+    (tester) async {
+      await tester.pumpWidget(app(const Scaffold(body: TelaCatalogo())));
+      await estabilizar(tester);
+      expect(find.text('Outra obra'), findsOneWidget);
+      final consultasAntesDeDigitar = consultas.length;
+      await tester.enterText(find.byType(TextField), 'monet');
+      await tester.pump(const Duration(seconds: 1));
+      expect(consultas, hasLength(consultasAntesDeDigitar));
+      expect(find.text('Outra obra'), findsOneWidget);
+      final campoBusca = tester.getRect(find.byType(TextField));
+      final botaoBusca = tester.getRect(
+        find.widgetWithText(ElevatedButton, 'Buscar'),
+      );
+      expect((campoBusca.center.dy - botaoBusca.center.dy).abs(), lessThan(1));
+      final indiceConsultaBusca = consultas.length;
+      await tester.tap(find.text('Buscar'));
+      await estabilizar(tester);
+      expect(consultas[indiceConsultaBusca].queryParameters['q'], 'monet');
+      expect(catalogo.erro, isNull, reason: consultas.toString());
+      expect(catalogo.avisoBusca, isNull);
+      expect(catalogo.buscando, isFalse);
+      expect(find.byType(TelaDetalhesObra), findsOneWidget);
+      expect(find.text('Nenúfares'), findsOneWidget);
+      expect(find.byTooltip('Voltar'), findsOneWidget);
+      expect(consultas.last.path, endsWith('/1'));
+      await tester.tap(find.byTooltip('Voltar'));
+      await estabilizar(tester);
+      await tester.enterText(find.byType(TextField), 'obra inexistente');
+      await tester.tap(find.text('Buscar'));
+      await estabilizar(tester);
+      expect(find.text('Nenhuma obra encontrada'), findsOneWidget);
+      expect(find.text('Acervo indisponível'), findsNothing);
+      expect(find.byType(TelaDetalhesObra), findsNothing);
+    },
+  );
 
   testWidgets(
-    'limpar busca restaura catálogo e botão Carregar mais é ElevatedButton',
+    'limpar restaura catálogo e Carregar mais recupera o estilo compacto',
     (tester) async {
       await tester.pumpWidget(app(const Scaffold(body: TelaCatalogo())));
       await estabilizar(tester);
       await tester.enterText(find.byType(TextField), 'monet');
-      await tester.pump(const Duration(milliseconds: 350));
+      await tester.tap(find.text('Buscar'));
+      await estabilizar(tester);
+      expect(find.byType(TelaDetalhesObra), findsOneWidget);
+      await tester.tap(find.byTooltip('Voltar'));
       await estabilizar(tester);
       await tester.tap(find.byTooltip('Limpar busca'));
-      await tester.pump(const Duration(milliseconds: 350));
       await estabilizar(tester);
       expect(find.text('Outra obra'), findsOneWidget);
-      final botao = find.widgetWithText(ElevatedButton, 'Carregar mais');
+      final botao = find.widgetWithText(OutlinedButton, 'Carregar mais');
       expect(botao, findsOneWidget);
+      expect(
+        find.widgetWithText(ElevatedButton, 'Carregar mais'),
+        findsNothing,
+      );
       await tester.tap(botao);
       await estabilizar(tester);
       expect(consultas.last.queryParameters['skip'], '12');
       expect(find.text('Nenúfares'), findsOneWidget);
     },
   );
+
+  testWidgets('campo e orientação da busca são acessíveis', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(app(const Scaffold(body: TelaCatalogo())));
+    await estabilizar(tester);
+    final campo = tester.widget<TextField>(find.byType(TextField));
+    expect(campo.decoration?.labelText, 'Buscar obra ou artista');
+    expect(
+      campo.decoration?.floatingLabelBehavior,
+      FloatingLabelBehavior.never,
+    );
+    final informacoes = tester.getSemantics(
+      find.byKey(const ValueKey('informacoes-busca')),
+    );
+    expect(informacoes.getSemanticsData().flagsCollection.isButton, isTrue);
+    expect(
+      informacoes.getSemanticsData().label,
+      'Informações sobre a busca. '
+      'Digite o título, o nome do artista ou use o formato Título — Artista. '
+      'A primeira obra encontrada será aberta.',
+    );
+    expect(
+      informacoes.getSemanticsData().hint,
+      'Ative para abrir esta orientação.',
+    );
+    await tester.tap(find.byKey(const ValueKey('informacoes-busca')));
+    await estabilizar(tester);
+    expect(find.text('Como buscar'), findsOneWidget);
+    expect(
+      find.text(
+        'Digite o título, o nome do artista ou use o formato Título — Artista. '
+        'A primeira obra encontrada será aberta.',
+      ),
+      findsOneWidget,
+    );
+    handle.dispose();
+  });
 
   testWidgets(
     'leitor de tela consegue acionar favorito e ler os controles principais',
@@ -545,36 +579,36 @@ void main() {
       const Size(320, 740),
       const Size(1024, 768),
     ]) {
-      testWidgets(
-        'telas sem overflow, fonte $escala, largura ${tamanho.width}',
-        (tester) async {
-          tester.view.physicalSize = tamanho;
-          tester.view.devicePixelRatio = 1;
-          addTearDown(tester.view.resetPhysicalSize);
-          addTearDown(tester.view.resetDevicePixelRatio);
-          for (final tela in [
-            const TelaAutenticacao(firebaseAtivo: false),
-            const TelaPrincipal(),
-            const TelaDetalhesObra(obraInicial: obra),
-            Scaffold(
-              body: GradeObras(
-                obras: const [
-                  Obra(
-                    id: 42,
-                    titulo: 'Uma obra com um título muito longo para testar a ampliação da fonte e a leitura completa',
-                    nomeArtista: 'Um artista com nome extenso',
-                  ),
-                ],
-                aoSelecionar: (_) {},
-              ),
+      testWidgets('telas sem overflow, fonte $escala, largura ${tamanho.width}', (
+        tester,
+      ) async {
+        tester.view.physicalSize = tamanho;
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        for (final tela in [
+          const TelaAutenticacao(firebaseAtivo: false),
+          const TelaPrincipal(),
+          const TelaDetalhesObra(obraInicial: obra),
+          Scaffold(
+            body: GradeObras(
+              obras: const [
+                Obra(
+                  id: 42,
+                  titulo:
+                      'Uma obra com um título muito longo para testar a ampliação da fonte e a leitura completa',
+                  nomeArtista: 'Um artista com nome extenso',
+                ),
+              ],
+              aoSelecionar: (_) {},
             ),
-          ]) {
-            await tester.pumpWidget(app(tela, escala: escala));
-            await estabilizar(tester);
-            expect(tester.takeException(), isNull, reason: '$tela');
-          }
-        },
-      );
+          ),
+        ]) {
+          await tester.pumpWidget(app(tela, escala: escala));
+          await estabilizar(tester);
+          expect(tester.takeException(), isNull, reason: '$tela');
+        }
+      });
     }
   }
 }

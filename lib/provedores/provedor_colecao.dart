@@ -161,7 +161,8 @@ class ProvedorColecao extends ChangeNotifier {
         }
       } catch (_) {
         if (_carregamentoAindaValido(usuarioId, versao)) {
-          _avisoSincronizacao = 'Não foi possível salvar a alteração no aparelho. Tente novamente.';
+          _avisoSincronizacao =
+              'Não foi possível salvar a alteração no aparelho. Tente novamente.';
           notifyListeners();
         }
       }
@@ -180,7 +181,8 @@ class ProvedorColecao extends ChangeNotifier {
       await _enviarPendencias(usuarioId, colecao);
     } catch (_) {
       if (_carregamentoAindaValido(usuarioId, versao)) {
-        _avisoSincronizacao = 'Alteração salva no aparelho. A sincronização será tentada novamente ao entrar na conta.';
+        _avisoSincronizacao =
+            'Alteração salva no aparelho. A sincronização será tentada novamente ao entrar na conta.';
         notifyListeners();
       }
     }

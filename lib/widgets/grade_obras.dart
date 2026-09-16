@@ -42,11 +42,16 @@ class GradeObras extends StatelessWidget {
         .floor()
         .clamp(1, 4);
     final larguraTexto = (largura - 16 * (colunas - 1)) / colunas - 24;
+    final estiloBase =
+        Theme.of(context).textTheme.bodyMedium ?? const TextStyle();
+    final estiloTitulo = estiloBase.merge(CartaoObra.estiloTitulo);
+    final estiloArtista = estiloBase.merge(CartaoObra.estiloArtista);
     double alturaTexto(String texto, TextStyle estilo) {
       final pintor = TextPainter(
         text: TextSpan(text: texto, style: estilo),
         textDirection: Directionality.of(context),
         textScaler: escala,
+        locale: Localizations.localeOf(context),
       )..layout(maxWidth: math.max(1, larguraTexto));
       final altura = pintor.height;
       pintor.dispose();
@@ -60,15 +65,9 @@ class GradeObras extends StatelessWidget {
         210 +
             24 +
             6 +
-            alturaTexto(
-              obra.titulo,
-              const TextStyle(fontFamily: 'Georgia', fontSize: 15, height: 1.2),
-            ) +
-            alturaTexto(
-              obra.artistaParaExibicao,
-              const TextStyle(fontSize: 13, height: 1.3),
-            ) +
-            4,
+            alturaTexto(obra.titulo, estiloTitulo) +
+            alturaTexto(obra.artistaParaExibicao, estiloArtista) +
+            20,
       );
     }
     final delegate = SliverGridDelegateWithFixedCrossAxisCount(

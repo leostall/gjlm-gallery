@@ -9,6 +9,18 @@ import 'imagem_obra.dart';
 class CartaoObra extends StatelessWidget {
   const CartaoObra({super.key, required this.obra, required this.aoTocar});
 
+  static const estiloTitulo = TextStyle(
+    fontFamily: 'Georgia',
+    fontSize: 15,
+    height: 1.2,
+    color: CoresGaleria.tinta,
+  );
+  static const estiloArtista = TextStyle(
+    fontSize: 13,
+    height: 1.3,
+    color: CoresGaleria.vinho,
+  );
+
   final Obra obra;
   final VoidCallback aoTocar;
 
@@ -54,21 +66,12 @@ class CartaoObra extends StatelessWidget {
                         children: [
                           Text(
                             obra.titulo,
-                            style: const TextStyle(
-                              fontFamily: 'Georgia',
-                              fontSize: 15,
-                              height: 1.2,
-                              color: CoresGaleria.tinta,
-                            ),
+                            style: estiloTitulo,
                           ),
                           const SizedBox(height: 6),
                           Text(
                             obra.artistaParaExibicao,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              height: 1.3,
-                              color: CoresGaleria.vinho,
-                            ),
+                            style: estiloArtista,
                           ),
                         ],
                       ),

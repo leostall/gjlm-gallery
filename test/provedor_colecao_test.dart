@@ -57,24 +57,27 @@ void main() {
     local = ServicoPersistenciaLocal(await SharedPreferences.getInstance());
   });
 
-  test('favoritos e vistas persistem após recriar provedor e ficam isolados por usuário', () async {
-    const nuvem = ServicoSincronizacaoNuvem(firebaseAtivo: false);
-    final primeiro = ProvedorColecao(local, nuvem)
-      ..atualizarUsuario('usuario-1');
-    addTearDown(primeiro.dispose);
-    await primeiro.alternarFavorito(obra);
-    await primeiro.alternarVisto(obra);
-    final segundo = ProvedorColecao(local, nuvem)
-      ..atualizarUsuario('usuario-1');
-    addTearDown(segundo.dispose);
-    await estabilizar();
-    expect(segundo.ehFavorito(7), isTrue);
-    expect(segundo.foiVisto(7), isTrue);
-    segundo.atualizarUsuario('usuario-2');
-    await estabilizar();
-    expect(segundo.favoritos, isEmpty);
-    expect(segundo.vistos, isEmpty);
-  });
+  test(
+    'favoritos e vistas persistem após recriar provedor e ficam isolados por usuário',
+    () async {
+      const nuvem = ServicoSincronizacaoNuvem(firebaseAtivo: false);
+      final primeiro = ProvedorColecao(local, nuvem)
+        ..atualizarUsuario('usuario-1');
+      addTearDown(primeiro.dispose);
+      await primeiro.alternarFavorito(obra);
+      await primeiro.alternarVisto(obra);
+      final segundo = ProvedorColecao(local, nuvem)
+        ..atualizarUsuario('usuario-1');
+      addTearDown(segundo.dispose);
+      await estabilizar();
+      expect(segundo.ehFavorito(7), isTrue);
+      expect(segundo.foiVisto(7), isTrue);
+      segundo.atualizarUsuario('usuario-2');
+      await estabilizar();
+      expect(segundo.favoritos, isEmpty);
+      expect(segundo.vistos, isEmpty);
+    },
+  );
 
   test('toques rápidos preservam último estado em disco e nuvem', () async {
     final nuvem = NuvemTeste();

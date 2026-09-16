@@ -13,8 +13,9 @@ AppBar barraTitulo(
   PreferredSizeWidget? rodape,
 }) {
   final voltar = ModalRoute.of(context)?.impliesAppBarDismissal ?? false;
-  final estilo = Theme.of(context).textTheme.titleLarge!
-      .copyWith(fontSize: 20, height: 1.2, color: cor);
+  final estilo = Theme.of(
+    context,
+  ).textTheme.titleLarge!.copyWith(fontSize: 20, height: 1.2, color: cor);
   final pintor =
       TextPainter(
         text: TextSpan(text: titulo, style: estilo),
